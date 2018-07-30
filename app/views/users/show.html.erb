@@ -1,0 +1,12 @@
+<!--<h1>Showing selected user</h1>-->
+
+<p><%= gravatar_for @user %></p>
+<p>Username: <%= @user.username %></p>
+<p>Email: <%= @user.email %></p>
+<br>
+<h4>Your articles:</h4>
+
+<%= render 'articles/article', obj: @user.articles %>
+
+<%= link_to "Edit user", edit_user_path(@user) %> |
+<%= link_to "Back to articles list", articles_path %>
