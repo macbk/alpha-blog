@@ -2,6 +2,8 @@ class ArticlesController < ApplicationController
   before_action :set_article, only: [:edit, :update, :show, :destroy]
   before_action :require_user, except: [:index, :show]
   before_action :require_same_user, only: [:edit, :update, :destroy]
+  before_action :require_admin, only: [:destroy]
+  
   
   def index
     @articles = Article.all
@@ -54,8 +56,15 @@ class ArticlesController < ApplicationController
     end
     
     def require_same_user
-      if current_user != @article.user
+      if current_user != @article.user && !current_user.admin?
         flash[:danger] = "Access denied"
+        redirect_to root_path
+      end
+    end
+    
+    def require_admin
+      if logged_in? && !current_user.admin?
+        flash[:danger] = "Only for admin"
         redirect_to root_path
       end
     end

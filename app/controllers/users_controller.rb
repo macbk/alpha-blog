@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:edit, :update, :show]
-  before_action :require_same_user, only: [:edit, :update]
+  before_action :set_user, only: [:edit, :update, :show, :destroy]
+  before_action :require_same_user, only: [:edit, :update, :destroy]
   
   def index
     @users = User.all
@@ -13,8 +13,9 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      flash[:success] = "User was successfully created"
-      redirect_to articles_path
+      session[:user_id] = @user.id
+      flash[:success] = "User #{@user.username} was successfully created"
+      redirect_to user_path(@user)
     else
       render 'new'
     end
@@ -35,6 +36,12 @@ class UsersController < ApplicationController
   def show
   end
   
+  def destroy
+    @user.destroy
+    flash[:danger] = "User and articles have been deleted"
+    redirect_to users_path
+  end
+  
   private
   def user_params
     params.require(:user).permit(:username, :email, :password)
@@ -45,7 +52,7 @@ class UsersController < ApplicationController
   end
   
   def require_same_user
-    if current_user != @user
+    if current_user != @user && !current_user.admin?
       flash[:danger] = "Access denied"
       redirect_to users_path
     end
